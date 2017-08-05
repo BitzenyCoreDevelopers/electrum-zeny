@@ -1,4 +1,4 @@
-Electrum - Lightweight Bitcoin client
+Electrum - Lightweight Monacoin client
 =====================================
 
 ::
@@ -6,11 +6,11 @@ Electrum - Lightweight Bitcoin client
   Licence: MIT Licence
   Author: Thomas Voegtlin
   Language: Python
-  Homepage: https://electrum.org/
+  Homepage: https://github.com/wakiyamap/electrum/
 
 
 .. image:: https://travis-ci.org/spesmilo/electrum.svg?branch=master
-    :target: https://travis-ci.org/spesmilo/electrum
+    :target: https://github.com/wakiyamap/electrum/
     :alt: Build Status
 
 
@@ -50,7 +50,7 @@ Development version
 
 Check out the code from Github::
 
-    git clone git://github.com/spesmilo/electrum.git
+    git clone https://github.com/wakiyamap/electrum.git
     cd electrum
 
 Run install (this should install dependencies)::

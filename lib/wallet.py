@@ -870,7 +870,7 @@ class Abstract_Wallet(PrintError):
         return tx
 
     def estimate_fee(self, config, size):
-        fee = int(config.fee_per_kb() * size / 1000.)
+        fee = int(config.fee_per_kb() * (1 + size / 1000))
         return fee
 
     def mktx(self, outputs, password, config, fee=None, change_addr=None, domain=None):
@@ -1194,7 +1194,7 @@ class Abstract_Wallet(PrintError):
         if not r:
             return
         out = copy.copy(r)
-        out['URI'] = 'bitcoin:' + addr + '?amount=' + util.format_satoshis(out.get('amount'))
+        out['URI'] = 'monacoin:' + addr + '?amount=' + util.format_satoshis(out.get('amount'))
         status, conf = self.get_request_status(addr)
         out['status'] = status
         if conf is not None:

@@ -7,6 +7,7 @@ PYWIN32_URL=http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/py
 PYINSTALLER_URL=https://pypi.python.org/packages/source/P/PyInstaller/PyInstaller-2.1.zip
 NSIS_URL=http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe?download
 SETUPTOOLS_URL=https://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe
+LYRA2RE_HASH_PYTHON_URL=https://github.com/metalicjames/lyra2re-hash-python/archive/master.zip
 
 
 ## These settings probably don't need change
@@ -58,16 +59,18 @@ mv PyInstaller-2.1 $WINEPREFIX/drive_c/pyinstaller
 # install Cryptodome
 $PYTHON -m pip install pycryptodomex
 
-# install PySocks
+$PYTHON -m pip install urllib3
+$PYTHON -m pip install chardet
+$PYTHON -m pip install certifi
+$PYTHON -m pip install idna
 $PYTHON -m pip install win_inet_pton
 
 # install websocket (python2)
 $PYTHON -m pip install websocket-client
 
-
 # Install setuptools
-wget -O setuptools.exe "$SETUPTOOLS_URL"
-wine setuptools.exe
+#wget -O setuptools.exe "$SETUPTOOLS_URL"
+#wine setuptools.exe
 
 # Install NSIS installer
 wget -q -O nsis.exe "$NSIS_URL"
@@ -81,3 +84,27 @@ wine nsis.exe
 # add dlls needed for pyinstaller:
 cp $WINEPREFIX/drive_c/windows/system32/msvcp90.dll $WINEPREFIX/drive_c/Python27/
 cp $WINEPREFIX/drive_c/windows/system32/msvcm90.dll $WINEPREFIX/drive_c/Python27/
+
+
+# Install MinGW
+wget http://downloads.sourceforge.net/project/mingw/Installer/mingw-get-setup.exe
+wine mingw-get-setup.exe
+
+echo "add c:\MinGW\bin to PATH using regedit"
+echo "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+regedit
+
+wine mingw-get install gcc
+wine mingw-get install mingw-utils
+wine mingw-get install mingw32-libz
+
+printf "[build]\ncompiler=mingw32\n" > $WINEPREFIX/drive_c/Python27/Lib/distutils/distutils.cfg
+
+$PYTHON -m pip install dnspython
+$PYTHON -m pip install pyaes
+$PYTHON -m pip install ecdsa
+$PYTHON -m pip install qrcode
+$PYTHON -m pip install pbkdf2
+$PYTHON -m pip install protobuf
+$PYTHON -m pip install requests
+$PYTHON -m pip install $LYRA2RE_HASH_PYTHON_URL

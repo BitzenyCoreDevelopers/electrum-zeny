@@ -9,7 +9,7 @@ else:
     raise BaseException('no name')
 
 
-home = 'C:\\electrum\\'
+home = 'C:\\electrum-mona\\'
 
 # We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
 a = Analysis([home+'electrum',
@@ -19,6 +19,7 @@ a = Analysis([home+'electrum',
               home+'lib/wallet.py',
               home+'lib/simple_config.py',
               home+'lib/bitcoin.py',
+              home+'lib/blockchain.py',
               home+'lib/dnssec.py',
               home+'lib/commands.py',
               home+'plugins/cosigner_pool/qt.py',
@@ -61,7 +62,7 @@ def extra_datas(mydir):
 # append dirs
 
 # cacert.pem
-a.datas += [ ('requests/cacert.pem', home+'packages/requests/cacert.pem', 'DATA') ]
+a.datas += [ ('certifi/cacert.pem', home+'packages/requests/cacert.pem', 'DATA') ]
 
 # Py folders that are needed because of the magic import finding
 a.datas += extra_datas(home+'gui')

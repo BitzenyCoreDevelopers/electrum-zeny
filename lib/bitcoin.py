@@ -39,27 +39,33 @@ import pyaes
 # Bitcoin network constants
 TESTNET = False
 NOLNET = False
-ADDRTYPE_P2PKH = 0
-ADDRTYPE_P2SH = 5
+ADDRTYPE_P2PKH = 50
+ADDRTYPE_P2SH = 55
+ADDRTYPE_P2SH_ALT = 5
 ADDRTYPE_P2WPKH = 6
 XPRV_HEADER = 0x0488ade4
 XPUB_HEADER = 0x0488b21e
-HEADERS_URL = "https://headers.electrum.org/blockchain_headers"
-GENESIS = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+XPRV_HEADER_ALT = 0x019d9cfe #todo
+XPUB_HEADER_ALT = 0x019da462 #todo
+#HEADERS_URL = "https://sound.sighash.info/blockchain_headers"
+HEADERS_URL = "http://electrumx2.tamami-foundation.org/blockchain_headers"
+GENESIS = "ff9f1c0116d19de7c9963845e129f9ed1bfc0b376eb54fd7afa42e0d418c8bb6"
 
 def set_testnet():
-    global ADDRTYPE_P2PKH, ADDRTYPE_P2SH, ADDRTYPE_P2WPKH
+    global ADDRTYPE_P2PKH, ADDRTYPE_P2SH, ADDRTYPE_P2SH_ALT, ADDRTYPE_P2WPKH
     global XPRV_HEADER, XPUB_HEADER
     global TESTNET, HEADERS_URL
     global GENESIS
     TESTNET = True
     ADDRTYPE_P2PKH = 111
-    ADDRTYPE_P2SH = 196
+    ADDRTYPE_P2SH = 117
+    ADDRTYPE_P2SH_ALT = 196
     ADDRTYPE_P2WPKH = 3
     XPRV_HEADER = 0x04358394
     XPUB_HEADER = 0x043587cf
-    HEADERS_URL = "https://headers.electrum.org/testnet_headers"
-    GENESIS = "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"
+    HEADERS_URL = "https://example.com/testnet_headers" # TODO
+    GENESIS = "a2b106ceba3be0c6d097b2a6a6aacf9d638ba8258ae478158f449c321061e0b2"
+
 
 def set_nolnet():
     global ADDRTYPE_P2PKH, ADDRTYPE_P2SH, ADDRTYPE_P2WPKH
@@ -67,20 +73,22 @@ def set_nolnet():
     global NOLNET, HEADERS_URL
     global GENESIS
     TESTNET = True
-    ADDRTYPE_P2PKH = 0
+    ADDRTYPE_P2PKH = 50
     ADDRTYPE_P2SH = 5
     ADDRTYPE_P2WPKH = 6
-    XPRV_HEADER = 0x0488ade4
-    XPUB_HEADER = 0x0488b21e
-    HEADERS_URL = "https://headers.electrum.org/nolnet_headers"
-    GENESIS = "663c88be18d07c45f87f910b93a1a71ed9ef1946cad50eb6a6f3af4c424625c6"
+    XPRV_HEADER = 0x019d9cfe
+    XPUB_HEADER = 0x019da462
+    HEADERS_URL = "https://example.com/nolnet_headers" # TODO
+    GENESIS = "ff9f1c0116d19de7c9963845e129f9ed1bfc0b376eb54fd7afa42e0d418c8bb6"
 
 
 
 ################################## transactions
 
+DUST_SOFT_LIMIT = 100000
+MIN_RELAY_TX_FEE = 100000
 FEE_STEP = 10000
-MAX_FEE_RATE = 300000
+MAX_FEE_RATE = 100000
 FEE_TARGETS = [25, 10, 5, 2]
 
 COINBASE_MATURITY = 100
@@ -272,7 +280,7 @@ def hash_160(public_key):
     md.update(sha256(public_key))
     return md.digest()
 
-def hash_160_to_bc_address(h160, addrtype, witness_program_version=1):
+def hash_160_to_bc_address(h160, addrtype = 50, witness_program_version=1):
     s = chr(addrtype)
     if addrtype == ADDRTYPE_P2WPKH:
         s += chr(witness_program_version) + chr(0)
@@ -436,7 +444,7 @@ def is_address(addr):
         addrtype, h = bc_address_to_hash_160(addr)
     except Exception:
         return False
-    if addrtype not in [ADDRTYPE_P2PKH, ADDRTYPE_P2SH]:
+    if addrtype not in [ADDRTYPE_P2PKH, ADDRTYPE_P2SH, ADDRTYPE_P2SH_ALT]:
         return False
     return addr == hash_160_to_bc_address(h, addrtype)
 
@@ -448,7 +456,7 @@ def is_p2pkh(addr):
 def is_p2sh(addr):
     if is_address(addr):
         addrtype, h = bc_address_to_hash_160(addr)
-        return addrtype == ADDRTYPE_P2SH
+        return addrtype in [ADDRTYPE_P2SH, ADDRTYPE_P2SH_ALT]
 
 def is_private_key(key):
     try:
@@ -481,7 +489,7 @@ from ecdsa.util import string_to_number, number_to_string
 def msg_magic(message):
     varint = var_int(len(message))
     encoded_varint = "".join([chr(int(varint[i:i+2], 16)) for i in xrange(0, len(varint), 2)])
-    return "\x18Bitcoin Signed Message:\n" + encoded_varint + message
+    return "\x19Monacoin Signed Message:\n" + encoded_varint + message
 
 
 def verify_message(address, sig, message):
@@ -774,7 +782,7 @@ def deserialize_xkey(xkey, prv):
     header = XPRV_HEADER if prv else XPUB_HEADER
     xtype = int('0x' + xkey[0:4].encode('hex'), 16) - header
     if xtype not in ([0, 1] if TESTNET else [0]):
-        raise BaseException('Invalid header')
+        raise BaseException('Invalid header') #TODO
     n = 33 if prv else 32
     K_or_k = xkey[13+n:]
     return xtype, depth, fingerprint, child_number, c, K_or_k

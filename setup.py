@@ -41,6 +41,7 @@ setup(
         'pbkdf2',
         'requests',
         'qrcode',
+        'lyra2re2_hash',
         'protobuf',
         'dnspython',
         'jsonrpclib',
@@ -61,7 +62,6 @@ setup(
         'electrum_plugins.ledger',
         'electrum_plugins.trezor',
         'electrum_plugins.digitalbitbox',
-        'electrum_plugins.trustedcoin',
         'electrum_plugins.virtualkeyboard',
     ],
     package_dir={
@@ -79,10 +79,10 @@ setup(
     },
     scripts=['electrum'],
     data_files=data_files,
-    description="Lightweight Bitcoin Wallet",
+    description="Lightweight Monacoin Wallet",
     author="Thomas Voegtlin",
     author_email="thomasv@electrum.org",
     license="MIT Licence",
-    url="https://electrum.org",
-    long_description="""Lightweight Bitcoin Wallet"""
+    url="https://github.com/wakiyamap/electrum",
+    long_description="""Lightweight Monacoin Wallet"""
 )

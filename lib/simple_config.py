@@ -8,7 +8,7 @@ from util import user_dir, print_error, print_msg, print_stderr, PrintError
 
 from bitcoin import MAX_FEE_RATE, FEE_TARGETS
 
-SYSTEM_CONFIG_PATH = "/etc/electrum.conf"
+SYSTEM_CONFIG_PATH = "/etc/electrum-mona.conf"
 
 config = None
 
@@ -230,14 +230,14 @@ class SimpleConfig(PrintError):
         return len(self.fee_estimates)==4
 
     def is_dynfee(self):
-        return self.get('dynamic_fees', True)
+        return self.get('dynamic_fees', False)
 
     def fee_per_kb(self):
         dyn = self.is_dynfee()
         if dyn:
             fee_rate = self.dynfee(self.get('fee_level', 2))
         else:
-            fee_rate = self.get('fee_per_kb', self.max_fee_rate()/2)
+            fee_rate = self.get('fee_per_kb', self.max_fee_rate()/10)
         return fee_rate
 
     def get_video_device(self):
