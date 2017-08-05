@@ -344,11 +344,11 @@ def time_difference(distance_in_time, include_seconds):
         return "over %d years" % (round(distance_in_minutes / 525600))
 
 mainnet_block_explorers = {
-    'bchain.info': ('https://bchain.info/MONA/',
+    'bchain.info': ('https://bchain.info/MONA',
                         {'tx': 'tx', 'addr': 'addr'}),
-    'insight.monaco-ex.org': ('https://mona.insight.monaco-ex.org/insight/',
+    'insight.monaco-ex.org': ('https://mona.insight.monaco-ex.org/insight',
                         {'tx': 'tx', 'addr': 'address'}),
-    'namuyan.dip.jp': ('http://namuyan.dip.jp/MultiLightBlockExplorer/mona/',
+    'namuyan.dip.jp': ('http://namuyan.dip.jp/MultiLightBlockExplorer/mona',
                         {'tx': 'tx', 'addr': 'address'}),
 }
 
