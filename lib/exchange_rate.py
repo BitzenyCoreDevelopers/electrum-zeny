@@ -199,7 +199,7 @@ class FxThread(ThreadJob):
 
     def get_currency(self):
         '''Use when dynamic fetching is needed'''
-        return self.config.get("currency", "EUR")
+        return self.config.get("currency", "JPY")
 
     def config_exchange(self):
         return self.config.get('use_exchange', 'Bittrex')

@@ -6,11 +6,11 @@ Electrum - Lightweight Monacoin client
   Licence: MIT Licence
   Author: Thomas Voegtlin
   Language: Python
-  Homepage: https://github.com/wakiyamap/electrum/
+  Homepage: https://github.com/wakiyamap/electrum-mona/
 
 
 .. image:: https://travis-ci.org/spesmilo/electrum.svg?branch=master
-    :target: https://github.com/wakiyamap/electrum/
+    :target: https://github.com/wakiyamap/electrum-mona/
     :alt: Build Status
 
 
@@ -50,8 +50,12 @@ Development version
 
 Check out the code from Github::
 
-    git clone https://github.com/wakiyamap/electrum.git
+    git clone https://github.com/wakiyamap/electrum-mona.git
     cd electrum
+
+Need lyra2rev2_hash::
+
+    pip install https://github.com/metalicjames/lyra2re-hash-python/archive/master.zip
 
 Run install (this should install dependencies)::
 
