@@ -948,8 +948,17 @@ class Network(util.DaemonThread):
                 os.rename(filename + '.tmp', filename)
                 self.print_error("done.")
             except Exception:
-                self.print_error("download failed. creating file", filename)
-                open(filename, 'wb+').close()
+                self.print_error("Main URL is failure. downloading from Sub URL")
+                try:
+                    import urllib, socket
+                    socket.setdefaulttimeout(30)
+                    self.print_error("downloading ", bitcoin.HEADERS_URL_SUB)
+                    urllib.urlretrieve(bitcoin.HEADERS_URL_SUB, filename + '.tmp')
+                    os.rename(filename + '.tmp', filename)
+                    self.print_error("done.")
+                except Exception:
+                    self.print_error("download failed. creating file", filename)
+                    open(filename, 'wb+').close()
             b = self.blockchains[0]
             with b.lock: b.update_size()
             self.downloading_headers = False
