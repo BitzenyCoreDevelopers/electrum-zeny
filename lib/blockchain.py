@@ -160,7 +160,7 @@ class Blockchain(util.PrintError):
             raise BaseException("prev hash mismatch: %s vs %s" % (prev_hash, header.get('prev_block_hash')))
         if bitcoin.TESTNET:
             return
-        if height < 450000 and height > 0 and height % 50000 <> 0 :
+        if height < 450000 and height > 1055 and height % 50000 <> 0 :
             return
         if bits != header.get('bits'):
             raise BaseException("bits mismatch: %s vs %s" % (bits, header.get('bits')))        
@@ -363,7 +363,7 @@ class Blockchain(util.PrintError):
     def get_target(self, height, chain=None):
         if bitcoin.TESTNET:
             return 0, 0
-        if height == 0:
+        if height <= 1055:
             return 0x1e0ffff0, MAX_TARGET
         if height == 50000:
             return 0x1c23bdcf, MAX_TARGET

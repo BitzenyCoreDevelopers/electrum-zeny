@@ -45,9 +45,8 @@ ADDRTYPE_P2SH_ALT = 5
 ADDRTYPE_P2WPKH = 6
 XPRV_HEADER = 0x0488ade4
 XPUB_HEADER = 0x0488b21e
-XPRV_HEADER_ALT = 0x019d9cfe #todo
-XPUB_HEADER_ALT = 0x019da462 #todo
-#HEADERS_URL = "https://sound.sighash.info/blockchain_headers"
+XPRV_HEADER_ALT = 0x019d9cfe
+XPUB_HEADER_ALT = 0x019da462
 HEADERS_URL = "http://electrumx2.tamami-foundation.org/blockchain_headers"
 GENESIS = "ff9f1c0116d19de7c9963845e129f9ed1bfc0b376eb54fd7afa42e0d418c8bb6"
 
