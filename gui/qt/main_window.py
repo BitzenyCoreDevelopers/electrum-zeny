@@ -351,7 +351,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.setGeometry(100, 100, 840, 400)
 
     def watching_only_changed(self):
-        title = 'Electrum %s  -  %s' % (self.wallet.electrum_version,
+        title = 'Electrum-mona %s  -  %s' % (self.wallet.electrum_version,
                                         self.wallet.basename().decode('utf8'))
         extra = [self.wallet.storage.get('wallet_type', '?')]
         if self.wallet.is_watching_only():
@@ -523,7 +523,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
             self.show_error(_('No donation address for this server'))
 
     def show_about(self):
-        QMessageBox.about(self, "Electrum",
+        QMessageBox.about(self, "Electrum-mona",
             _("Version")+" %s" % (self.wallet.electrum_version) + "\n\n" +
                 _("Electrum's focus is speed, with low resource usage and simplifying Bitcoin. You do not need to perform regular backups, because your wallet can be recovered from a secret phrase that you can memorize or write on paper. Startup times are instant because it operates in conjunction with high-performance servers that handle the most complicated parts of the Bitcoin system."  + "\n\n" +
                 _("Uses icons from the Icons8 icon pack (icons8.com).")))
@@ -2414,15 +2414,15 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, PrintError):
         nz.valueChanged.connect(on_nz)
         gui_widgets.append((nz_label, nz))
 
-        def on_dynfee(x):
-            self.config.set_key('dynamic_fees', x == Qt.Checked)
-            self.fee_slider.update()
-            update_maxfee()
-        dynfee_cb = QCheckBox(_('Use dynamic fees'))
-        dynfee_cb.setChecked(self.config.is_dynfee())
-        dynfee_cb.setToolTip(_("Use fees recommended by the server."))
-        fee_widgets.append((dynfee_cb, None))
-        dynfee_cb.stateChanged.connect(on_dynfee)
+        #def on_dynfee(x):
+        #    self.config.set_key('dynamic_fees', x == Qt.Checked)
+        #    self.fee_slider.update()
+        #    update_maxfee()
+        #dynfee_cb = QCheckBox(_('Use dynamic fees'))
+        #dynfee_cb.setChecked(self.config.is_dynfee())
+        #dynfee_cb.setToolTip(_("Use fees recommended by the server."))
+        #fee_widgets.append((dynfee_cb, None))
+        #dynfee_cb.stateChanged.connect(on_dynfee)
 
         def on_maxfee(x):
             m = maxfee_e.get_amount()
