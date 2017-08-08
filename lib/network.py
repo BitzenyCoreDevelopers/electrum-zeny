@@ -940,25 +940,22 @@ class Network(util.DaemonThread):
             return
         filename = b.path()
         def download_thread():
-            try:
-                import urllib, socket
-                socket.setdefaulttimeout(30)
-                self.print_error("downloading ", bitcoin.HEADERS_URL)
-                urllib.urlretrieve(bitcoin.HEADERS_URL, filename + '.tmp')
-                os.rename(filename + '.tmp', filename)
-                self.print_error("done.")
-            except Exception:
-                self.print_error("Main URL is failure. downloading from Sub URL")
+            urls = [bitcoin.HEADERS_URL_1st, bitcoin.HEADERS_URL_2nd, bitcoin.HEADERS_URL_3rd, None]
+            for url in urls:
+                if url == None:
+                    self.print_error("download failed. creating file", filename)
+                    open(filename, 'wb+').close()
+                    break
                 try:
                     import urllib, socket
                     socket.setdefaulttimeout(30)
-                    self.print_error("downloading ", bitcoin.HEADERS_URL_SUB)
-                    urllib.urlretrieve(bitcoin.HEADERS_URL_SUB, filename + '.tmp')
+                    self.print_error("downloading ", url)
+                    urllib.urlretrieve(url, filename + '.tmp')
                     os.rename(filename + '.tmp', filename)
                     self.print_error("done.")
+                    break
                 except Exception:
-                    self.print_error("download failed. creating file", filename)
-                    open(filename, 'wb+').close()
+                    self.print_error("download failed: ", url)
             b = self.blockchains[0]
             with b.lock: b.update_size()
             self.downloading_headers = False
