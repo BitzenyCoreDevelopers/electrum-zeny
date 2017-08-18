@@ -783,7 +783,7 @@ def deserialize_xkey(xkey, prv):
     header = XPRV_HEADER if prv else XPUB_HEADER
     xtype = int('0x' + xkey[0:4].encode('hex'), 16) - header
     if xtype not in ([0, 1] if TESTNET else [0]):
-        raise BaseException('Invalid header') #TODO
+        raise BaseException('Invalid header')
     n = 33 if prv else 32
     K_or_k = xkey[13+n:]
     return xtype, depth, fingerprint, child_number, c, K_or_k
