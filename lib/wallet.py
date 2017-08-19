@@ -792,14 +792,14 @@ class Abstract_Wallet(PrintError):
         return status, status_str
 
     def relayfee(self):
-        RELAY_FEE = 5000
-        MAX_RELAY_FEE = 50000
+        RELAY_FEE = bitcoin.MIN_RELAY_TX_FEE
+        MAX_RELAY_FEE = 10 * RELAY_FEE
         f = self.network.relay_fee if self.network and self.network.relay_fee else RELAY_FEE
         return min(f, MAX_RELAY_FEE)
 
     def dust_threshold(self):
         # Change <= dust threshold is added to the tx fee
-        return 182 * 3 * self.relayfee() / 1000
+        return DUST_SOFT_LIMIT
 
     def make_unsigned_transaction(self, inputs, outputs, config, fixed_fee=None, change_addr=None):
         # check outputs
@@ -842,7 +842,7 @@ class Abstract_Wallet(PrintError):
 
         # Fee estimator
         if fixed_fee is None:
-            fee_estimator = partial(self.estimate_fee, config)
+            fee_estimator = partial(self.estimate_fee, config, outputs=outputs)
         else:
             fee_estimator = lambda size: fixed_fee
 
@@ -866,12 +866,15 @@ class Abstract_Wallet(PrintError):
         tx.BIP_LI01_sort()
         # Timelock tx to current height.
         # Disabled until keepkey firmware update
-        # tx.locktime = self.get_local_height()
+        tx.locktime = self.get_local_height() #TODO
         run_hook('make_unsigned_transaction', self, tx)
         return tx
 
-    def estimate_fee(self, config, size):
+    def estimate_fee(self, config, size, outputs=[]):
         fee = int(config.fee_per_kb() * (1 + size / 1000))
+        for _, _, value in outputs:
+            if value > 0 and value < DUST_SOFT_LIMIT:
+                fee += DUST_SOFT_LIMIT
         return fee
 
     def mktx(self, outputs, password, config, fee=None, change_addr=None, domain=None):
