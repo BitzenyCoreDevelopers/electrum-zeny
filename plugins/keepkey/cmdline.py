@@ -1,5 +1,5 @@
 from keepkey import KeepKeyPlugin
-from electrum.util import print_msg
+from electrum_mona.util import print_msg
 
 class KeepKeyCmdLineHandler:
 

@@ -1,7 +1,7 @@
-diff --git a/electrum b/electrum
+diff --git a/electrum-mona b/electrum-mona
 index 8c972c6..46903b7 100755
---- a/electrum
-+++ b/electrum
+--- a/electrum-mona
++++ b/electrum-mona
 @@ -454,6 +454,8 @@ if __name__ == '__main__':
          if config_options.get('server'):
              config_options['auto_connect'] = False

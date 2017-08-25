@@ -3,15 +3,14 @@
 
 [Desktop Entry]
 Comment=Lightweight Monacoin Client
-Exec=electrum %u
-GenericName[en_US]=Monacoin Wallet
+Exec=electrum-mona %u
 GenericName=Monacoin Wallet
-Icon=electrum
-Name[en_US]=Electrum Monacoin Wallet
+Icon=electrum-mona
 Name=Electrum Monacoin Wallet
 Categories=Finance;Network;
 StartupNotify=false
 Terminal=false
 Type=Application
-MimeType=x-scheme-handler/bitcoin;
+MimeType=x-scheme-handler/monacoin;
 
+Name[ja]=electrum-mona.desktop

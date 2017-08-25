@@ -36,13 +36,13 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.QtCore as QtCore
 
-from electrum.i18n import _, set_language
-from electrum.plugins import run_hook
-from electrum import SimpleConfig, Wallet, WalletStorage
-from electrum.synchronizer import Synchronizer
-from electrum.verifier import SPV
-from electrum.util import DebugMem, UserCancelled, InvalidPassword
-from electrum.wallet import Abstract_Wallet
+from electrum_mona.i18n import _, set_language
+from electrum_mona.plugins import run_hook
+from electrum_mona import SimpleConfig, Wallet, WalletStorage
+from electrum_mona.synchronizer import Synchronizer
+from electrum_mona.verifier import SPV
+from electrum_mona.util import DebugMem, UserCancelled, InvalidPassword
+from electrum_mona.wallet import Abstract_Wallet
 from installwizard import InstallWizard, GoBack
 
 
@@ -50,7 +50,7 @@ try:
     import icons_rc
 except Exception:
     print "Error: Could not find icons file."
-    print "Please run 'pyrcc4 icons.qrc -o gui/qt/icons_rc.py', and reinstall Electrum"
+    print "Please run 'pyrcc4 icons.qrc -o gui/qt/icons_rc.py', and reinstall Electrum-mona"
     sys.exit(1)
 
 from util import *   # * needed for plugins

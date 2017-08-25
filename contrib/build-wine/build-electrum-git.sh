@@ -19,28 +19,28 @@ set -e
 
 cd tmp
 
-if [ -d "electrum-git" ]; then
+if [ -d "electrum-mona-git" ]; then
     # GIT repository found, update it
     echo "Pull"
-    cd electrum-git
+    cd electrum-mona-git
     git checkout $BRANCH
     git pull
     cd ..
 else
     # GIT repository not found, clone it
     echo "Clone"
-    git clone -b $BRANCH $ELECTRUM_GIT_URL electrum-git
+    git clone -b $BRANCH $ELECTRUM_GIT_URL electrum-mona-git
 fi
 
-cd electrum-git
+cd electrum-mona-git
 VERSION=`git describe --tags`
 echo "Last commit: $VERSION"
 
 cd ..
 
 rm -rf $WINEPREFIX/drive_c/electrum-mona
-cp -r electrum-git $WINEPREFIX/drive_c/electrum-mona
-cp electrum-git/LICENCE .
+cp -r electrum-mona-git $WINEPREFIX/drive_c/electrum-mona
+cp electrum-mona-git/LICENCE .
 
 # add python packages (built with make_packages)
 cp -r ../../../packages $WINEPREFIX/drive_c/electrum-mona/

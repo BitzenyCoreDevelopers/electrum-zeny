@@ -12,7 +12,7 @@ else:
 home = 'C:\\electrum-mona\\'
 
 # We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
-a = Analysis([home+'electrum',
+a = Analysis([home+'electrum-mona',
               home+'gui/qt/main_window.py',
               home+'gui/text.py',
               home+'lib/util.py',
@@ -81,7 +81,7 @@ exe = EXE(pyz,
           a.scripts,
           a.binaries,
           a.datas,
-          name=os.path.join('build\\pyi.win32\\electrum', cmdline_name),
+          name=os.path.join('build\\pyi.win32\\electrum-mona', cmdline_name),
           debug=False,
           strip=None,
           upx=False,

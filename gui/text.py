@@ -3,9 +3,9 @@ import curses, datetime, locale
 from decimal import Decimal
 import getpass
 
-from electrum.util import format_satoshis, set_verbosity
-from electrum.bitcoin import is_valid, COIN, TYPE_ADDRESS
-from electrum import Wallet, WalletStorage
+from electrum_mona.util import format_satoshis, set_verbosity
+from electrum_mona.bitcoin import is_valid, COIN, TYPE_ADDRESS
+from electrum_mona import Wallet, WalletStorage
 
 _ = lambda x:x
 
@@ -19,7 +19,7 @@ class ElectrumGui:
         self.network = daemon.network
         storage = WalletStorage(config.get_wallet_path())
         if not storage.file_exists:
-            print "Wallet not found. try 'electrum create'"
+            print "Wallet not found. try 'electrum-mona create'"
             exit()
         if storage.is_encrypted():
             password = getpass.getpass('Password:', stream=None)

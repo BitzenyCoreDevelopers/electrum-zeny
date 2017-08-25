@@ -25,7 +25,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from electrum.i18n import _
+from electrum_mona.i18n import _
 
 from util import *
 from qrtextedit import ShowQRTextEdit, ScanQRTextEdit
@@ -68,11 +68,11 @@ class SeedLayout(QVBoxLayout):
                 if b:
                     msg = ' '.join([
                         '<b>' + _('Warning') + ': BIP39 seeds are dangerous!' + '</b><br/><br/>',
-                        _('BIP39 seeds can be imported in Electrum so that users can access funds locked in other wallets.'),
+                        _('BIP39 seeds can be imported in Electrum-mona so that users can access funds locked in other wallets.'),
                         _('However, BIP39 seeds do not include a version number, which compromises compatibility with future wallet software.'),
                         '<br/><br/>',
-                        _('We do not guarantee that BIP39 imports will always be supported in Electrum.'),
-                        _('In addition, Electrum does not verify the checksum of BIP39 seeds; make sure you type your seed correctly.'),
+                        _('We do not guarantee that BIP39 imports will always be supported in Electrum-mona.'),
+                        _('In addition, Electrum-mona does not verify the checksum of BIP39 seeds; make sure you type your seed correctly.'),
                     ])
                 else:
                     msg = ''
@@ -139,14 +139,14 @@ class SeedLayout(QVBoxLayout):
         return ' '.join(text.split())
 
     def on_edit(self):
-        from electrum.bitcoin import seed_type
+        from electrum_mona.bitcoin import seed_type
         s = self.get_seed()
         b = self.is_seed(s)
         if not self.is_bip39:
             t = seed_type(s)
             label = _('Seed Type') + ': ' + t if t else ''
         else:
-            from electrum.keystore import bip39_is_checksum_valid
+            from electrum_mona.keystore import bip39_is_checksum_valid
             is_checksum, is_wordlist = bip39_is_checksum_valid(s)
             status = ('checksum: ' + ('ok' if is_checksum else 'failed')) if is_wordlist else 'unknown wordlist'
             label = 'BIP39' + ' (%s)'%status
