@@ -33,7 +33,7 @@ if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
     ]
 
 setup(
-    name="Electrum",
+    name="Electrum-mona",
     version=version.ELECTRUM_VERSION,
     install_requires=[
         'pyaes',
