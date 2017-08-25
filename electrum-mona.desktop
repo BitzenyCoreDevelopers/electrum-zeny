@@ -13,4 +13,4 @@ Terminal=false
 Type=Application
 MimeType=x-scheme-handler/monacoin;
 
-Name[ja]=electrum-mona.desktop
+Name[ja]=electrum-mona
