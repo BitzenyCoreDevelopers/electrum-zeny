@@ -98,4 +98,4 @@ coll = COLLECT(exe,
                debug=False,
                icon=home+'icons/electrum.ico',
                console=False,
-               name=os.path.join('dist', 'electrum'))
+               name=os.path.join('dist', 'electrum-mona'))
