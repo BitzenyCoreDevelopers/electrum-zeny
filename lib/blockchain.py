@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Electrum - lightweight Bitcoin client
 # Copyright (C) 2012 thomasv@ecdsa.org
 #
@@ -22,22 +20,19 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
-
 import os
-import util
 import threading
 
-import bitcoin
-from bitcoin import *
+from . import util
+from . import bitcoin
+from .bitcoin import *
 
 try:
-    import lyra2re2_hash
+    import yescrypt_hash
 except ImportError as e:
-    exit("Please run 'sudo pip install https://github.com/metalicjames/lyra2re-hash-python/archive/master.zip'")
+    exit("Please run 'sudo pip3 install https://github.com/bitzeny/zny_yescrypt_python/archive/master.zip'")
 
-MAX_TARGET = 0xff9f1c0116d1a000000000000000000000000000000000000000000000000000
+MAX_TARGET = 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
 def serialize_header(res):
     s = int_to_hex(res.get('version'), 4) \
@@ -49,7 +44,7 @@ def serialize_header(res):
     return s
 
 def deserialize_header(s, height):
-    hex_to_int = lambda s: int('0x' + s[::-1].encode('hex'), 16)
+    hex_to_int = lambda s: int('0x' + bh2u(s[::-1]), 16)
     h = {}
     h['version'] = hex_to_int(s[0:4])
     h['prev_block_hash'] = hash_encode(s[4:36])
@@ -65,7 +60,7 @@ def hash_header(header):
         return '0' * 64
     if header.get('prev_block_hash') is None:
         header['prev_block_hash'] = '00'*32
-    return hash_encode(Hash(serialize_header(header).decode('hex')))
+    return hash_encode(Hash(bfh(serialize_header(header))))
 
 blockchains = {}
 
@@ -99,8 +94,9 @@ def can_connect(header):
 
 
 class Blockchain(util.PrintError):
-
-    '''Manages blockchain headers and their verification'''
+    """
+    Manages blockchain headers and their verification
+    """
 
     def __init__(self, config, checkpoint, parent_id):
         self.config = config
@@ -115,7 +111,7 @@ class Blockchain(util.PrintError):
         return blockchains[self.parent_id]
 
     def get_max_child(self):
-        children = filter(lambda y: y.parent_id==self.checkpoint, blockchains.values())
+        children = list(filter(lambda y: y.parent_id==self.checkpoint, blockchains.values()))
         return max([x.checkpoint for x in children]) if children else None
 
     def get_checkpoint(self):
@@ -149,18 +145,18 @@ class Blockchain(util.PrintError):
 
     def update_size(self):
         p = self.path()
-        self._size = os.path.getsize(p)/80 if os.path.exists(p) else 0
+        self._size = os.path.getsize(p)//80 if os.path.exists(p) else 0
 
     def verify_header(self, header, prev_header, bits, target):
         prev_hash = hash_header(prev_header)
-        _hash = hash_header(header)
-        _powhash = rev_hex(lyra2re2_hash.getPoWHash(serialize_header(header).decode('hex')).encode('hex'))
+        #_hash = hash_header(header)
+        _powhash = rev_hex(bh2u(yescrypt_hash.getPoWHash(bfh(serialize_header(header)))))
         height = header.get('block_height')
         if prev_hash != header.get('prev_block_hash'):
             raise BaseException("prev hash mismatch: %s vs %s" % (prev_hash, header.get('prev_block_hash')))
         if bitcoin.TESTNET:
             return
-        if height < 450000 and height > 1055 and height % 50000 <> 0 :
+        if height < 450000 and height > 1055 and height % 50000 != 0 :
             return
         if bits != header.get('bits'):
             raise BaseException("bits mismatch: %s vs %s" % (bits, header.get('bits')))        
@@ -168,10 +164,10 @@ class Blockchain(util.PrintError):
             raise BaseException("insufficient proof of work: %s vs target %s" % (int('0x' + _powhash, 16), target))
 
     def verify_chunk(self, index, data):
-        num = len(data) / 80
+        num = len(data) // 80
         prev_header = None
         if index != 0:
-            prev_header = self.read_header(index*2016 - 1)
+            prev_header = self.read_header(index * 2016 - 1)
         headers = {}
         for i in range(num):
             raw_header = data[i*80:(i+1) * 80]
@@ -244,7 +240,7 @@ class Blockchain(util.PrintError):
 
     def save_header(self, header):
         delta = header.get('block_height') - self.checkpoint
-        data = serialize_header(header).decode('hex')
+        data = bfh(serialize_header(header))
         assert delta == self.size()
         assert len(data) == 80
         self.write(data, delta*80)
@@ -283,12 +279,12 @@ class Blockchain(util.PrintError):
         a = bits%MM
         if a < 0x8000:
             a *= 256
-        target = (a) * pow(2, 8 * (bits/MM - 3))
+        target = (a) * pow(2, 8 * (bits//MM - 3))
         return target
 
     def target_to_bits(self, target):
         MM = 256*256*256
-        c = ("%064X"%target)[2:]
+        c = ("%064X"%int(target))[2:]
         i = 31
         while c[0:2]=="00":
             c = c[2:]
@@ -296,7 +292,7 @@ class Blockchain(util.PrintError):
 
         c = int('0x'+c[0:6],16)
         if c >= 0x800000:
-            c /= 256
+            c //= 256
             i += 1
 
         new_bits = c + MM * i
@@ -306,9 +302,11 @@ class Blockchain(util.PrintError):
         if chain is None:
             chain = {}
 
-        last = self.read_header(height - 1)
+        #last = self.read_header(height - 1)
+        last = chain.get(height - 1)
         if last is None:
-            last = chain.get(height - 1)
+            #last = chain.get(height - 1)
+            last = self.read_header(height - 1)
 
         # params
         BlockLastSolved = last
@@ -323,7 +321,7 @@ class Blockchain(util.PrintError):
         PastDifficultyAveragePrev = 0
         bnNum = 0
 
-        #thanks watanabe!! http://askmona.org/5288#res_61
+        #thanks watanabe!! http://askzeny.org/5288#res_61
         if BlockLastSolved is None or height-1 < 450024:
             return 0x1e0fffff, MAX_TARGET
         for i in range(1, PastBlocksMax + 1):
@@ -334,7 +332,7 @@ class Blockchain(util.PrintError):
                     PastDifficultyAverage = self.bits_to_target(BlockReading.get('bits'))
                 else:
                     bnNum = self.bits_to_target(BlockReading.get('bits'))
-                    PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks)+(bnNum)) / (CountBlocks + 1)
+                    PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks)+(bnNum)) // (CountBlocks + 1)
                 PastDifficultyAveragePrev = PastDifficultyAverage
 
             if LastBlockTime > 0:
@@ -342,19 +340,21 @@ class Blockchain(util.PrintError):
                 nActualTimespan += Diff
             LastBlockTime = BlockReading.get('timestamp')
 
-            BlockReading = self.read_header((height-1) - CountBlocks)
+            #BlockReading = self.read_header((height-1) - CountBlocks)
+            BlockReading = chain.get((height-1) - CountBlocks)
             if BlockReading is None:
-                BlockReading = chain.get((height-1) - CountBlocks)
+                #BlockReading = chain.get((height-1) - CountBlocks)
+                BlockReading = self.read_header((height-1) - CountBlocks)
 
         bnNew = PastDifficultyAverage
-        nTargetTimespan = CountBlocks * 90
+        nTargetTimespan = CountBlocks * 90 #TODO 90 minutes
 
-        nActualTimespan = max(nActualTimespan, nTargetTimespan/3)
+        nActualTimespan = max(nActualTimespan, nTargetTimespan//3)
         nActualTimespan = min(nActualTimespan, nTargetTimespan*3)
 
         # retarget
         bnNew *= nActualTimespan
-        bnNew /= nTargetTimespan
+        bnNew //= nTargetTimespan
         bnNew = min(bnNew, MAX_TARGET)
 
         new_bits = self.target_to_bits(bnNew)
@@ -363,28 +363,8 @@ class Blockchain(util.PrintError):
     def get_target(self, height, chain=None):
         if bitcoin.TESTNET:
             return 0, 0
-        if height <= 1055:
-            return 0x1e0ffff0, MAX_TARGET
-        if height == 50000:
-            return 0x1c23bdcf, MAX_TARGET
-        if height == 100000:
-            return 0x1c0d1935, MAX_TARGET
-        if height == 150000:
-            return 0x1c0c7215, MAX_TARGET
-        if height == 200000:
-            return 0x1c00caa1, MAX_TARGET
-        if height == 250000:
-            return 0x1b662f96, MAX_TARGET
-        if height == 300000:
-            return 0x1c00b806, MAX_TARGET
-        if height == 350000:
-            return 0x1b198ec0, MAX_TARGET
-        if height == 400000:
-            return 0x1b1fb776, MAX_TARGET
-        if height >= 450000:
-            return self.get_target_dgwv3(height, chain)
         else:
-            return 0, 0
+            return self.get_target_dgwv3(height, chain)
 
     def can_connect(self, header, check_height=True):
         height = header['block_height']
@@ -409,9 +389,8 @@ class Blockchain(util.PrintError):
 
     def connect_chunk(self, idx, hexdata):
         try:
-            data = hexdata.decode('hex')
+            data = bfh(hexdata)
             self.verify_chunk(idx, data)
-            print idx
             #self.print_error("validated chunk %d" % idx)
             self.save_chunk(idx, data)
             return True

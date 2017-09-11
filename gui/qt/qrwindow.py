@@ -22,24 +22,28 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
+import six
 import re
 import platform
 from decimal import Decimal
-from urllib import quote
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 
-from electrum_mona_gui.qt.qrcodewidget import QRCodeWidget
-from electrum_mona.i18n import _
+from electrum_zeny_gui.qt.qrcodewidget import QRCodeWidget
+from electrum_zeny.i18n import _
 
 if platform.system() == 'Windows':
     MONOSPACE_FONT = 'Lucida Console'
 elif platform.system() == 'Darwin':
-    MONOSPACE_FONT = 'Monaco'
+    MONOSPACE_FONT = 'Zenyco'
 else:
     MONOSPACE_FONT = 'monospace'
 

@@ -23,8 +23,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-
 import time
 import threading
 import base64
@@ -33,21 +31,20 @@ from functools import partial
 import smtplib
 import imaplib
 import email
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email import Encoders
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 
-from electrum_mona.plugins import BasePlugin, hook
-from electrum_mona.paymentrequest import PaymentRequest
-from electrum_mona.i18n import _
-from electrum_mona_gui.qt.util import EnterButton, Buttons, CloseButton
-from electrum_mona_gui.qt.util import OkButton, WindowModalDialog
-
+from electrum_zeny.plugins import BasePlugin, hook
+from electrum_zeny.paymentrequest import PaymentRequest
+from electrum_zeny.i18n import _
+from electrum_zeny_gui.qt.util import EnterButton, Buttons, CloseButton
+from electrum_zeny_gui.qt.util import OkButton, WindowModalDialog
 
 
 class Processor(threading.Thread):
@@ -96,7 +93,7 @@ class Processor(threading.Thread):
         msg['From'] = self.username
         part = MIMEBase('application', "bitcoin-paymentrequest")
         part.set_payload(payment_request)
-        Encoders.encode_base64(part)
+        encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename="payreq.btc"')
         msg.attach(part)
         s = smtplib.SMTP_SSL(self.imap_server, timeout=2)
@@ -142,7 +139,7 @@ class Plugin(BasePlugin):
         menu.addAction(_("Send via e-mail"), lambda: self.send(window, addr))
 
     def send(self, window, addr):
-        from electrum_mona import paymentrequest
+        from electrum_zeny import paymentrequest
         r = window.wallet.receive_requests.get(addr)
         message = r.get('memo', '')
         if r.get('signature'):

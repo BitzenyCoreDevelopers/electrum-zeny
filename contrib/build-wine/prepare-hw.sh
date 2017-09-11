@@ -9,7 +9,7 @@ BRANCH=master
 # These settings probably don't need any change
 export WINEPREFIX=/opt/wine64
 
-PYHOME=c:/python27
+PYHOME=c:/python34
 PYTHON="wine $PYHOME/python.exe "
 
 # Let's begin!

@@ -1,9 +1,15 @@
-from electrum_mona.i18n import _
-from electrum_mona.plugins import run_hook
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import six
+from electrum_zeny.i18n import _
+from electrum_zeny.plugins import run_hook
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from util import ButtonsTextEdit, MessageBoxMixin
+from .util import ButtonsTextEdit, MessageBoxMixin
 
 
 class ShowQRTextEdit(ButtonsTextEdit):
@@ -16,11 +22,11 @@ class ShowQRTextEdit(ButtonsTextEdit):
         run_hook('show_text_edit', self)
 
     def qr_show(self):
-        from qrcodewidget import QRDialog
+        from .qrcodewidget import QRDialog
         try:
             s = str(self.toPlainText())
         except:
-            s = unicode(self.toPlainText())
+            s = self.toPlainText()
         QRDialog(s).exec_()
 
     def contextMenuEvent(self, e):
@@ -39,7 +45,7 @@ class ScanQRTextEdit(ButtonsTextEdit, MessageBoxMixin):
         run_hook('scan_text_edit', self)
 
     def file_input(self):
-        fileName = unicode(QFileDialog.getOpenFileName(self, 'select file'))
+        fileName = QFileDialog.getOpenFileName(self, 'select file')
         if not fileName:
             return
         with open(fileName, "r") as f:
@@ -47,7 +53,7 @@ class ScanQRTextEdit(ButtonsTextEdit, MessageBoxMixin):
         self.setText(data)
 
     def qr_input(self):
-        from electrum_mona import qrscanner, get_config
+        from electrum_zeny import qrscanner, get_config
         try:
             data = qrscanner.scan_barcode(get_config().get_video_device())
         except BaseException as e:

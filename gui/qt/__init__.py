@@ -30,31 +30,34 @@ import signal
 try:
     import PyQt4
 except Exception:
-    sys.exit("Error: Could not import PyQt4 on Linux systems, you may try 'sudo apt-get install python-qt4'")
+    sys.exit("Error: Could not import PyQt4 on Linux systems, you may try 'sudo apt-get install python3-pyqt4'")
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.QtCore as QtCore
 
-from electrum_mona.i18n import _, set_language
-from electrum_mona.plugins import run_hook
-from electrum_mona import SimpleConfig, Wallet, WalletStorage
-from electrum_mona.synchronizer import Synchronizer
-from electrum_mona.verifier import SPV
-from electrum_mona.util import DebugMem, UserCancelled, InvalidPassword
-from electrum_mona.wallet import Abstract_Wallet
-from installwizard import InstallWizard, GoBack
+from electrum_zeny.i18n import _, set_language
+from electrum_zeny.plugins import run_hook
+from electrum_zeny import SimpleConfig, Wallet, WalletStorage
+from electrum_zeny.synchronizer import Synchronizer
+from electrum_zeny.verifier import SPV
+from electrum_zeny.util import DebugMem, UserCancelled, InvalidPassword
+from electrum_zeny.wallet import Abstract_Wallet
+
+from .installwizard import InstallWizard, GoBack
 
 
 try:
-    import icons_rc
-except Exception:
-    print "Error: Could not find icons file."
-    print "Please run 'pyrcc4 icons.qrc -o gui/qt/icons_rc.py', and reinstall Electrum-mona"
+    from . import icons_rc
+except Exception as e:
+    print(e)
+    print("Error: Could not find icons file.")
+    print("Please run 'pyrcc4 icons.qrc -o gui/qt/icons_rc.py -py3', and reinstall Electrum")
     sys.exit(1)
 
-from util import *   # * needed for plugins
-from main_window import ElectrumWindow
+from .util import *   # * needed for plugins
+from .main_window import ElectrumWindow
+from .network_dialog import NetworkDialog
 
 
 class OpenFileEventFilter(QObject):
@@ -79,6 +82,7 @@ class ElectrumGui:
         # GC-ed when windows are closed
         #network.add_jobs([DebugMem([Abstract_Wallet, SPV, Synchronizer,
         #                            ElectrumWindow], interval=5)])
+        QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
         self.config = config
         self.daemon = daemon
         self.plugins = plugins
@@ -140,7 +144,6 @@ class ElectrumGui:
         self.app.emit(SIGNAL('new_window'), path, uri)
 
     def show_network_dialog(self, parent):
-        from network_dialog import NetworkDialog
         if not self.daemon.network:
             parent.show_warning(_('You are using Electrum in offline mode; restart Electrum if you want to get connected'), title=_('Offline'))
             return

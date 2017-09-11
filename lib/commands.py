@@ -22,6 +22,10 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -35,15 +39,15 @@ import base64
 from functools import wraps
 from decimal import Decimal
 
-import util
-from util import print_msg, format_satoshis, print_stderr
-import bitcoin
-from bitcoin import is_address, hash_160, COIN, TYPE_ADDRESS
-import transaction
-from transaction import Transaction
-import paymentrequest
-from paymentrequest import PR_PAID, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
-import contacts
+from .import util
+from .util import print_msg, format_satoshis, print_stderr
+from .import bitcoin
+from .bitcoin import is_address,  hash_160, COIN, TYPE_ADDRESS
+from .transaction import Transaction
+from .import paymentrequest
+from .paymentrequest import PR_PAID, PR_UNPAID, PR_UNKNOWN, PR_EXPIRED
+from .import contacts
+
 known_commands = {}
 
 
@@ -53,7 +57,6 @@ def satoshis(amount):
 
 
 class Command:
-
     def __init__(self, func, s):
         self.name = func.__name__
         self.requires_network = 'n' in s
@@ -61,8 +64,8 @@ class Command:
         self.requires_password = 'p' in s
         self.description = func.__doc__
         self.help = self.description.split('.')[0] if self.description else None
-        varnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
-        self.defaults = func.func_defaults
+        varnames = func.__code__.co_varnames[1:func.__code__.co_argcount]
+        self.defaults = func.__defaults__
         if self.defaults:
             n = len(self.defaults)
             self.params = list(varnames[:-n])
@@ -82,7 +85,7 @@ def command(s):
         def func_wrapper(*args, **kwargs):
             c = known_commands[func.__name__]
             if c.requires_wallet and args[0].wallet is None:
-                raise BaseException("wallet not loaded. Use 'electrum-mona daemon load_wallet'")
+                raise BaseException("wallet not loaded. Use 'electrum-zeny daemon load_wallet'")
             return func(*args, **kwargs)
         return func_wrapper
     return decorator
@@ -129,8 +132,8 @@ class Commands:
     @command('wn')
     def restore(self, text):
         """Restore a wallet from text. Text can be a seed phrase, a master
-        public key, a master private key, a list of monacoin addresses
-        or monacoin private keys. If you want to be prompted for your
+        public key, a master private key, a list of bitzeny addresses
+        or bitzeny private keys. If you want to be prompted for your
         seed, type '?' or ':' (concealed) """
         raise BaseException('Not a JSON-RPC command')
 
@@ -159,9 +162,9 @@ class Commands:
     @command('')
     def make_seed(self, nbits=132, entropy=1, language=None):
         """Create a seed"""
-        from mnemonic import Mnemonic
+        from .mnemonic import Mnemonic
         s = Mnemonic(language).make_seed('standard', nbits, custom_entropy=entropy)
-        return s.encode('utf8')
+        return s
 
     @command('')
     def check_seed(self, seed, entropy=1, language=None):
@@ -227,7 +230,7 @@ class Commands:
             elif txin.get('redeemScript'):
                 raise BaseException('Not implemented')
 
-        outputs = map(lambda x: (TYPE_ADDRESS, x['address'], int(x['value'])), outputs)
+        outputs = [(TYPE_ADDRESS, x['address'], int(x['value'])) for x in outputs]
         tx = Transaction.from_io(inputs, outputs, locktime=locktime)
         tx.sign(keypairs)
         return tx.as_dict()
@@ -238,8 +241,8 @@ class Commands:
         tx = Transaction(tx)
         if privkey:
             pubkey = bitcoin.public_key_from_private_key(privkey)
-            h160 = bitcoin.hash_160(pubkey.decode('hex'))
-            x_pubkey = 'fd' + (chr(0) + h160).encode('hex')
+            h160 = bitcoin.hash_160(bfh(pubkey))
+            x_pubkey = 'fd' + bh2u(b'\x00' + h160)
             tx.sign({x_pubkey:privkey})
         else:
             self.wallet.sign_transaction(tx, password)
@@ -261,8 +264,8 @@ class Commands:
     def createmultisig(self, num, pubkeys):
         """Create multisig address"""
         assert isinstance(pubkeys, list), (type(num), type(pubkeys))
-        redeem_script = transaction.multisig_script(pubkeys, num)
-        address = bitcoin.hash160_to_p2sh(hash_160(redeem_script.decode('hex')))
+        redeem_script = Transaction.multisig_script(pubkeys, num)
+        address = bitcoin.hash160_to_p2sh(hash_160(bfh(redeem_script)))
         return {'address':address, 'redeemScript':redeem_script}
 
     @command('w')
@@ -291,7 +294,7 @@ class Commands:
     @command('')
     def dumpprivkeys(self):
         """Deprecated."""
-        return "This command is deprecated. Use a pipe instead: 'electrum-mona listaddresses | electrum-mona getprivatekeys - '"
+        return "This command is deprecated. Use a pipe instead: 'electrum-zeny listaddresses | electrum-zeny getprivatekeys - '"
 
     @command('')
     def validateaddress(self, address):
@@ -364,7 +367,7 @@ class Commands:
     def getseed(self, password=None):
         """Get seed phrase. Print the generation seed of your wallet."""
         s = self.wallet.get_seed(password)
-        return s.encode('utf8')
+        return s
 
     @command('wp')
     def importprivkey(self, privkey, password=None):
@@ -491,7 +494,7 @@ class Commands:
 
     @command('w')
     def setlabel(self, key, label):
-        """Assign a label to an item. Item may be a monacoin address or a
+        """Assign a label to an item. Item may be a bitzeny address or a
         transaction ID"""
         self.wallet.set_label(key, label)
 
@@ -597,8 +600,8 @@ class Commands:
         else:
             f = None
         if f is not None:
-            out = filter(lambda x: x.get('status')==f, out)
-        return map(self._format_request, out)
+            out = list(filter(lambda x: x.get('status')==f, out))
+        return list(map(self._format_request, out))
 
     @command('w')
     def getunusedaddress(self,force=False):
@@ -677,8 +680,8 @@ class Commands:
 
 param_descriptions = {
     'privkey': 'Private key. Type \'?\' to get a prompt.',
-    'destination': 'Monacoin address, contact or alias',
-    'address': 'Monacoin address',
+    'destination': 'Bitzeny address, contact or alias',
+    'address': 'Bitzeny address',
     'seed': 'Seed phrase',
     'txid': 'Transaction ID',
     'pos': 'Position',
@@ -728,13 +731,13 @@ command_options = {
 
 
 # don't use floats because of rounding errors
-from transaction import tx_from_str
+from .transaction import tx_from_str
 json_loads = lambda x: json.loads(x, parse_float=lambda x: str(Decimal(x)))
 arg_types = {
     'num': int,
     'nbits': int,
     'imax': int,
-    'entropy': long,
+    'entropy': int,
     'tx': tx_from_str,
     'pubkeys': json_loads,
     'jsontx': json_loads,
@@ -751,10 +754,10 @@ config_variables = {
         'requests_dir': 'directory where a bip70 file will be written.',
         'ssl_privkey': 'Path to your SSL private key, needed to sign the request.',
         'ssl_chain': 'Chain of SSL certificates, needed for signed requests. Put your certificate at the top and the root CA at the end',
-        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of monacoin: URIs. Example: \"(\'file:///var/www/\',\'https://github.com/wakiyamap/electrum-mona/\')\"',
+        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of bitzeny: URIs. Example: \"(\'file:///var/www/\',\'https://electrum-zeny.org/\')\"',
     },
     'listrequests':{
-        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of monacoin: URIs. Example: \"(\'file:///var/www/\',\'https://github.com/wakiyamap/electrum-mona/\')\"',
+        'url_rewrite': 'Parameters passed to str.replace(), in order to create the r= part of bitzeny: URIs. Example: \"(\'file:///var/www/\',\'https://electrum-zeny.org/\')\"',
     }
 }
 
@@ -819,7 +822,7 @@ def add_global_options(parser):
     group = parser.add_argument_group('global options')
     group.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Show debugging information")
     group.add_argument("-D", "--dir", dest="electrum_path", help="electrum directory")
-    group.add_argument("-P", "--portable", action="store_true", dest="portable", default=False, help="Use local 'electrum-mona_data' directory")
+    group.add_argument("-P", "--portable", action="store_true", dest="portable", default=False, help="Use local 'electrum-zeny_data' directory")
     group.add_argument("-w", "--wallet", dest="wallet_path", help="wallet path")
     group.add_argument("--testnet", action="store_true", dest="testnet", default=False, help="Use Testnet")
     group.add_argument("--segwit", action="store_true", dest="segwit", default=False, help="The Wizard will create Segwit seed phrases (Testnet only).")
@@ -828,12 +831,12 @@ def add_global_options(parser):
 def get_parser():
     # create main parser
     parser = argparse.ArgumentParser(
-        epilog="Run 'electrum-mona help <command>' to see the help for a command")
+        epilog="Run 'electrum-zeny help <command>' to see the help for a command")
     add_global_options(parser)
     subparsers = parser.add_subparsers(dest='cmd', metavar='<command>')
     # gui
     parser_gui = subparsers.add_parser('gui', description="Run Electrum's Graphical User Interface.", help="Run GUI (default)")
-    parser_gui.add_argument("url", nargs='?', default=None, help="monacoin URI (or bip70 file)")
+    parser_gui.add_argument("url", nargs='?', default=None, help="bitzeny URI (or bip70 file)")
     parser_gui.add_argument("-g", "--gui", dest="gui", help="select graphical user interface", choices=['qt', 'kivy', 'text', 'stdio'])
     parser_gui.add_argument("-o", "--offline", action="store_true", dest="offline", default=False, help="Run offline")
     parser_gui.add_argument("-m", action="store_true", dest="hide_gui", default=False, help="hide GUI on startup")

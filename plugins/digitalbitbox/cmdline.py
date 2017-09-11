@@ -1,5 +1,5 @@
-from digitalbitbox import DigitalBitboxPlugin
-from electrum_mona.util import print_msg
+from electrum_zeny.util import print_msg
+from .digitalbitbox import DigitalBitboxPlugin
 
 class DigitalBitboxCmdLineHandler:
     def stop(self):

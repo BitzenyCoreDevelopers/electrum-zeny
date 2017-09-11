@@ -1,3 +1,9 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import six
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.QtGui as QtGui
@@ -5,9 +11,9 @@ import PyQt4.QtGui as QtGui
 import os
 import qrcode
 
-import electrum_mona
-from electrum_mona.i18n import _
-from util import WindowModalDialog
+import electrum_zeny
+from electrum_zeny.i18n import _
+from .util import WindowModalDialog
 
 
 class QRCodeWidget(QWidget):
@@ -98,7 +104,7 @@ class QRDialog(WindowModalDialog):
         hbox = QHBoxLayout()
         hbox.addStretch(1)
 
-        config = electrum_mona.get_config()
+        config = electrum_zeny.get_config()
         if config:
             filename = os.path.join(config.path, "qrcode.png")
 

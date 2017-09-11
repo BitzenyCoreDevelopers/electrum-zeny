@@ -1,0 +1,16 @@
+# If you want electrum to appear in a linux app launcher ("start menu"), install this by doing:
+# sudo desktop-file-install electrum.desktop
+
+[Desktop Entry]
+Comment=Lightweight Bitzeny Client
+Exec=electrum-zeny %u
+GenericName=Bitzeny Wallet
+Icon=electrum-zeny
+Name=Electrum Bitzeny Wallet
+Categories=Finance;Network;
+StartupNotify=false
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/bitzeny;
+
+Name[ja]=electrum-zeny.desktop

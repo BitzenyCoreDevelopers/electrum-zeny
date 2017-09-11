@@ -1,5 +1,5 @@
-from ledger import LedgerPlugin
-from electrum_mona.util import print_msg
+from electrum_zeny.util import print_msg
+from .ledger import LedgerPlugin
 
 class BTChipCmdLineHandler:
     def stop(self):

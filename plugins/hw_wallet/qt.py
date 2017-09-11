@@ -27,11 +27,11 @@
 import threading
 
 from PyQt4.Qt import QVBoxLayout, QLabel, SIGNAL
-from electrum_mona_gui.qt.password_dialog import PasswordDialog, PW_PASSPHRASE
-from electrum_mona_gui.qt.util import *
+from electrum_zeny_gui.qt.password_dialog import PasswordDialog, PW_PASSPHRASE
+from electrum_zeny_gui.qt.util import *
 
-from electrum_mona.i18n import _
-from electrum_mona.util import PrintError
+from electrum_zeny.i18n import _
+from electrum_zeny.util import PrintError
 
 # The trickiest thing about this handler was getting windows properly
 # parented on MacOSX.
@@ -123,7 +123,7 @@ class QtHandlerBase(QObject, PrintError):
             vbox.addWidget(pw)
             vbox.addLayout(Buttons(CancelButton(d), OkButton(d)))
             d.setLayout(vbox)
-            passphrase = unicode(pw.text()) if d.exec_() else None
+            passphrase = pw.text() if d.exec_() else None
         self.passphrase = passphrase
         self.done.set()
 
@@ -137,7 +137,7 @@ class QtHandlerBase(QObject, PrintError):
         hbox.addWidget(text)
         hbox.addStretch(1)
         dialog.exec_()  # Firmware cannot handle cancellation
-        self.word = unicode(text.text())
+        self.word = text.text()
         self.done.set()
 
     def message_dialog(self, msg, on_cancel):
@@ -171,16 +171,16 @@ class QtHandlerBase(QObject, PrintError):
 
 
 
-from electrum_mona.plugins import hook
-from electrum_mona.util import UserCancelled
-from electrum_mona_gui.qt.main_window import StatusBarButton
+from electrum_zeny.plugins import hook
+from electrum_zeny.util import UserCancelled
+from electrum_zeny_gui.qt.main_window import StatusBarButton
 
 class QtPluginBase(object):
 
     @hook
     def load_wallet(self, wallet, window):
         for keystore in wallet.get_keystores():
-            if type(keystore) != self.keystore_class:
+            if not isinstance(keystore, self.keystore_class):
                 continue
             tooltip = self.device + '\n' + (keystore.label or 'unnamed')
             cb = partial(self.show_settings_dialog, window, keystore)

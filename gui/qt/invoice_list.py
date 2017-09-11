@@ -22,12 +22,17 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
+import six
 
-from util import *
-from electrum_mona.i18n import _
-from electrum_mona.util import block_explorer_URL, format_satoshis, format_time
-from electrum_mona.plugins import run_hook
+from .util import *
+from electrum_zeny.i18n import _
+from electrum_zeny.util import block_explorer_URL, format_satoshis, format_time
+from electrum_zeny.plugins import run_hook
 
 class InvoiceList(MyTreeWidget):
     filter_columns = [0, 1, 2, 3]  # Date, Requestor, Description, Amount
@@ -59,7 +64,7 @@ class InvoiceList(MyTreeWidget):
 
     def import_invoices(self):
         wallet_folder = self.parent.get_wallet_folder()
-        filename = unicode(QFileDialog.getOpenFileName(self.parent, "Select your wallet file", wallet_folder))
+        filename = QFileDialog.getOpenFileName(self.parent, "Select your wallet file", wallet_folder)
         if not filename:
             return
         self.parent.invoices.import_file(filename)
@@ -68,8 +73,10 @@ class InvoiceList(MyTreeWidget):
     def create_menu(self, position):
         menu = QMenu()
         item = self.itemAt(position)
-        key = str(item.data(0, 32).toString())
-        column = self.currentColumn()
+        if not item:
+            return
+        key = item.data(0, 32)
+        column = self.currentColumn()        
         column_title = self.headerItem().text(column)
         column_data = item.text(column)
         pr = self.parent.invoices.get(key)
