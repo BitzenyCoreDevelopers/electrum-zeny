@@ -54,9 +54,12 @@ Check out the code from Github::
     git clone https://github.com/wakiyamap/electrum-zeny.git
     cd electrum-zeny
 
-Need lyra2rev2_hash::
+Need yescrypt_hash::
 
-    pip3 install https://github.com/metalicjames/lyra2re-hash-python/archive/master.zip
+    wget https://github.com/amarian12/p2pool-hash-scripts/archive/master.zip
+    unzip p2pool-hash-scripts-master.zip
+    cd p2pool-hash-scripts-master\yescrypt-hash-python
+    python3 setup.py install
 
 Run install (this should install dependencies)::
 
