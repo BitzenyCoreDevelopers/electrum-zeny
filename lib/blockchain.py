@@ -28,11 +28,12 @@ from . import bitcoin
 from .bitcoin import *
 
 try:
-    import yescrypt_hash
+    import zny_yescrypt
 except ImportError as e:
     exit("Please run 'sudo pip3 install https://github.com/bitzeny/zny_yescrypt_python/archive/master.zip'")
 
-MAX_TARGET = 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+MAX_TARGET = 0x3F0000000000000000000000000000000000000000000000000000000000
+
 
 def serialize_header(res):
     s = int_to_hex(res.get('version'), 4) \
@@ -60,7 +61,7 @@ def hash_header(header):
         return '0' * 64
     if header.get('prev_block_hash') is None:
         header['prev_block_hash'] = '00'*32
-    return hash_encode(Hash(bfh(serialize_header(header))))
+    return rev_hex(bh2u(zny_yescrypt.getPoWHash(bfh(serialize_header(header)))))
 
 blockchains = {}
 
@@ -150,13 +151,11 @@ class Blockchain(util.PrintError):
     def verify_header(self, header, prev_header, bits, target):
         prev_hash = hash_header(prev_header)
         #_hash = hash_header(header)
-        _powhash = rev_hex(bh2u(yescrypt_hash.getPoWHash(bfh(serialize_header(header)))))
+        _powhash = rev_hex(bh2u(zny_yescrypt.getPoWHash(bfh(serialize_header(header)))))
         height = header.get('block_height')
         if prev_hash != header.get('prev_block_hash'):
             raise BaseException("prev hash mismatch: %s vs %s" % (prev_hash, header.get('prev_block_hash')))
         if bitcoin.TESTNET:
-            return
-        if height < 450000 and height > 1055 and height % 50000 != 0 :
             return
         if bits != header.get('bits'):
             raise BaseException("bits mismatch: %s vs %s" % (bits, header.get('bits')))        
@@ -309,52 +308,40 @@ class Blockchain(util.PrintError):
             last = self.read_header(height - 1)
 
         # params
-        BlockLastSolved = last
         BlockReading = last
-        BlockCreating = height
         nActualTimespan = 0
-        LastBlockTime = 0
-        PastBlocksMin = 24
-        PastBlocksMax = 24
+        FistBlockTime = 0
+        nAverageBlocks = 24
         CountBlocks = 0
-        PastDifficultyAverage = 0
-        PastDifficultyAveragePrev = 0
         bnNum = 0
+        bnTmp = 0
+        bnOldAvg = 0
+        nTargetTimespan = nAverageBlocks * 90 # 90 seconds
 
-        #thanks watanabe!! http://askzeny.org/5288#res_61
-        if BlockLastSolved is None or height-1 < 450024:
-            return 0x1e0fffff, MAX_TARGET
-        for i in range(1, PastBlocksMax + 1):
+        if last is None or height-1 < 25:
+            return 0x1e3fffff, MAX_TARGET
+        for i in range(1, nAverageBlocks + 1):
             CountBlocks += 1
 
-            if CountBlocks <= PastBlocksMin:
-                if CountBlocks == 1:
-                    PastDifficultyAverage = self.bits_to_target(BlockReading.get('bits'))
-                else:
-                    bnNum = self.bits_to_target(BlockReading.get('bits'))
-                    PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks)+(bnNum)) // (CountBlocks + 1)
-                PastDifficultyAveragePrev = PastDifficultyAverage
+            if CountBlocks <= nAverageBlocks:
+                bnTmp = self.bits_to_target(BlockReading.get('bits'))
+                bnOldAvg += bnTmp
 
-            if LastBlockTime > 0:
-                Diff = (LastBlockTime - BlockReading.get('timestamp'))
-                nActualTimespan += Diff
-            LastBlockTime = BlockReading.get('timestamp')
+            #FistBlockTime = BlockReading.get('timestamp')
 
-            #BlockReading = self.read_header((height-1) - CountBlocks)
             BlockReading = chain.get((height-1) - CountBlocks)
             if BlockReading is None:
-                #BlockReading = chain.get((height-1) - CountBlocks)
                 BlockReading = self.read_header((height-1) - CountBlocks)
 
-        bnNew = PastDifficultyAverage
-        nTargetTimespan = CountBlocks * 90 #TODO 90 minutes
-
+        nActualTimespan = last.get('timestamp') - BlockReading.get('timestamp')
         nActualTimespan = max(nActualTimespan, nTargetTimespan//3)
         nActualTimespan = min(nActualTimespan, nTargetTimespan*3)
 
-        # retarget
+        # retargets
+        bnNew = bnOldAvg // nAverageBlocks
         bnNew *= nActualTimespan
         bnNew //= nTargetTimespan
+
         bnNew = min(bnNew, MAX_TARGET)
 
         new_bits = self.target_to_bits(bnNew)

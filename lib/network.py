@@ -55,15 +55,7 @@ DEFAULT_PORTS = {'t':'50001', 's':'50002'}
 #then gradually switch remaining nodes to e-x nodes
 
 DEFAULT_SERVERS = {
-    # http://askzeny.org/5288
-    # https://mstdn.zenyppy.jp/@WakiyamaP/521192
-    'electrumx.tamami-foundation.org':DEFAULT_PORTS,
-
-    # https://mstdn.zenyppy.jp/@WakiyamaP/690841
-    'electrumx2.tamami-foundation.org':DEFAULT_PORTS,
-
-    'zeny-cce-1.coinomi.net': {'t':'5022'},
-    'zeny-cce-2.coinomi.net': {'t':'5022'},
+    'tk2-205-12365.vs.sakura.ne.jp':DEFAULT_PORTS,
 }
 
 def set_testnet():
