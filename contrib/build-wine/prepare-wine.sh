@@ -117,3 +117,4 @@ wine dlltool -dllname $WINEPREFIX/drive_c/python$PYTHON_VERSION/vcruntime140.dll
 cp libvcruntime140.a $WINEPREFIX/drive_c/MinGW/lib/
 
 $PYTHON -m pip install $ZNY_YESCRYPT_HASH_PYTHON_URL
+$PYTHON -m pip install cython

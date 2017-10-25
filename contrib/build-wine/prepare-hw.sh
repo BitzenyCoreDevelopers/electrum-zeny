@@ -37,7 +37,7 @@ cd tmp
 
 # Install Cython
 $PYTHON -m pip install setuptools --upgrade
-$PYTHON -m pip install cython
+#$PYTHON -m pip install cython
 $PYTHON -m pip install hidapi==0.7.99.post20
 $PYTHON -m pip install trezor==0.7.16
 $PYTHON -m pip install keepkey
