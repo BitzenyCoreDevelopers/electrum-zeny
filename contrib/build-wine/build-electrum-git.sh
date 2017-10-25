@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # You probably need to update only this link
-ELECTRUM_GIT_URL=git://github.com/wakiyamap/electrum-zeny.git
+ELECTRUM_GIT_URL=git://github.com/BitzenyCoreDevelopers/electrum-Zeny.git
 BRANCH=master
 NAME_ROOT=electrum-zeny
 PYTHON_VERSION=3.6.3
