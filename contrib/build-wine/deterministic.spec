@@ -1,5 +1,7 @@
 # -*- mode: python -*-
 
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
 import sys
 for i, x in enumerate(sys.argv):
     if x == '--name':
@@ -10,6 +12,24 @@ else:
 
 
 home = 'C:\\electrum-zeny\\'
+
+# see https://github.com/pyinstaller/pyinstaller/issues/2005
+hiddenimports = []
+hiddenimports += collect_submodules('trezorlib')
+hiddenimports += collect_submodules('btchip')
+hiddenimports += collect_submodules('keepkeylib')
+
+datas = [
+    (home+'lib/currencies.json', 'electrum_zeny'),
+    (home+'lib/servers.json', 'electrum_zeny'),
+    (home+'lib/wordlist/english.txt', 'electrum_zeny/wordlist'),
+    (home+'lib/locale', 'electrum_zeny/locale'),
+    (home+'plugins', 'electrum_zeny_plugins'),
+    #(home+'packages/requests/cacert.pem', 'requests/cacert.pem')
+]
+datas += collect_data_files('trezorlib')
+datas += collect_data_files('btchip')
+datas += collect_data_files('keepkeylib')
 
 # We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
 a = Analysis([home+'electrum-zeny',
@@ -30,13 +50,9 @@ a = Analysis([home+'electrum-zeny',
               home+'plugins/ledger/qt.py',
               #home+'packages/requests/utils.py'
               ],
-             datas = [
-                 (home+'lib/currencies.json', 'electrum'),
-                 (home+'lib/wordlist/english.txt', 'electrum/wordlist'),
-                 #(home+'packages/requests/cacert.pem', 'requests/cacert.pem')
-             ],
+             datas=datas,
              #pathex=[home+'lib', home+'gui', home+'plugins'],
-             #hiddenimports=["lib", "gui", "plugins", "electrum_gui.qt.icons_rc"],
+             hiddenimports=hiddenimports,
              hookspath=[])
 
 

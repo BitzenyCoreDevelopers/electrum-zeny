@@ -6,10 +6,11 @@ from __future__ import unicode_literals
 import six
 from electrum_zeny.i18n import _
 
-import PyQt4
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-import PyQt4.QtCore as QtCore
+import PyQt5
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+import PyQt5.QtCore as QtCore
+from PyQt5.QtWidgets import QSlider, QToolTip
 
 import threading
 
@@ -35,7 +36,7 @@ class FeeSlider(QSlider):
 
     def get_tooltip(self, pos, fee_rate):
         from electrum_zeny.util import fee_levels
-        rate_str = self.window.format_amount(fee_rate) + ' ' + self.window.base_unit() + '/kB'
+        rate_str = self.window.format_fee_rate(fee_rate) if fee_rate else _('unknown')
         if self.dyn:
             tooltip = fee_levels[pos] + '\n' + rate_str
         else:

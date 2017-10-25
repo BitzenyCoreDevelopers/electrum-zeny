@@ -5,11 +5,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import six
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import (QLineEdit, QStyle, QStyleOptionFrame)
 
 from decimal import Decimal
 from electrum_zeny.util import format_satoshis_plain
+
 
 
 class MyLineEdit(QLineEdit):
@@ -59,7 +61,7 @@ class AmountEdit(MyLineEdit):
     def paintEvent(self, event):
         QLineEdit.paintEvent(self, event)
         if self.base_unit:
-            panel = QStyleOptionFrameV2()
+            panel = QStyleOptionFrame()
             self.initStyleOption(panel)
             textRect = self.style().subElementRect(QStyle.SE_LineEditContents, panel, self)
             textRect.adjust(2, 0, -10, 0)
@@ -84,11 +86,11 @@ class BTCAmountEdit(AmountEdit):
         p = self.decimal_point()
         assert p in [2, 5, 8]
         if p == 8:
-            return 'MONA'
+            return 'ZENY'
         if p == 5:
-            return 'mMONA'
+            return 'mZENY'
         if p == 2:
-            return 'uMONA'
+            return 'uZENY'
         raise Exception('Unknown base unit')
 
     def get_amount(self):

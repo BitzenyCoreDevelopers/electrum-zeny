@@ -41,7 +41,7 @@ setup(
         'pbkdf2',
         'requests',
         'qrcode',
-        'yescrypt_hash',
+        'zny_yescrypt',
         'protobuf',
         'dnspython',
         'jsonrpclib-pelix',
@@ -71,6 +71,8 @@ setup(
     },
     package_data={
         'electrum_zeny': [
+            'servers.json',
+            'servers_testnet.json',
             'currencies.json',
             'www/index.html',
             'wordlist/*.txt',

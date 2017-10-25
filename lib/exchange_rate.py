@@ -90,7 +90,7 @@ class ExchangeBase(PrintError):
 
     def get_currencies(self):
         rates = self.get_rates('')
-        return sorted([str(a) for (a, b) in rates.iteritems() if b is not None and len(a)==3])
+        return sorted([str(a) for (a, b) in rates.items() if b is not None and len(a)==3])
 
     def convert_btc_to_ccy(self, ccy, btc):
         json = self.get_json('apiv2.bitcoinaverage.com', '/indices/global/ticker/BTC%s' % ccy)
@@ -110,7 +110,6 @@ class Zaif(ExchangeBase):
     def get_rates(self, ccy):
         json = self.get_json('api.zaif.jp', '/api/1/last_price/zeny_jpy')
         return {'JPY': Decimal(json['last_price'])}
-
 
 def dictinvert(d):
     inv = {}

@@ -1,21 +1,18 @@
 #!/bin/bash
 
+PYTHON_VERSION=3.6.3
 # Please update these links carefully, some versions won't work under Wine
-#PYTHON_URL=https://www.python.org/ftp/python/3.4.4/python-3.4.4.amd64.msi
-PYTHON_URL=https://www.python.org/ftp/python/3.4.4/python-3.4.4.msi
-#PYWIN32_URL=https://sourceforge.net/projects/pywin32/files/pywin32/Build%20221/pywin32-221.win-amd64-py3.4.exe
-PYWIN32_URL=https://sourceforge.net/projects/pywin32/files/pywin32/Build%20221/pywin32-221.win32-py3.4.exe
-#PYQT4_URL=https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt4-4.11.4-gpl-Py3.4-Qt4.8.7-x64.exe
-PYQT4_URL=https://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.11.4/PyQt4-4.11.4-gpl-Py3.4-Qt4.8.7-x32.exe
-NSIS_URL=http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe?download
-LYRA2RE_HASH_PYTHON_URL=https://github.com/bitzeny/zny_yescrypt_python/archive/master.zip
-
+PYTHON_URL=https://www.python.org/ftp/python/$PYTHON_VERSION/python-$PYTHON_VERSION.exe
+NSIS_URL=http://prdownloads.sourceforge.net/nsis/nsis-3.02.1-setup.exe?download
+VC2015_URL=https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
+WINETRICKS_MASTER_URL=https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+ZNY_YESCRYPT_HASH_PYTHON_URL=https://github.com/wakiyamap/zny_yescrypt_python/archive/master.zip
 
 ## These settings probably don't need change
 export WINEPREFIX=/opt/wine64
 #export WINEARCH='win32'
 
-PYHOME=c:/python34
+PYHOME=c:/python$PYTHON_VERSION
 PYTHON="wine $PYHOME/python.exe -OO -B"
 
 # Let's begin!
@@ -37,22 +34,20 @@ echo "done"
 cd tmp
 
 # Install Python
-wget -O python.msi "$PYTHON_URL"
-wine msiexec /q /i python.msi
-
-# Install PyWin32
-wget -O pywin32.exe "$PYWIN32_URL"
-wine pywin32.exe
-
-# Install PyQt4
-wget -O PyQt.exe "$PYQT4_URL"
-wine PyQt.exe
+wget -O python$PYTHON_VERSION.exe "$PYTHON_URL"
+wine python$PYTHON_VERSION.exe /quiet TargetDir=C:\python$PYTHON_VERSION
 
 # upgrade pip
 $PYTHON -m pip install pip --upgrade
 
+# Install PyWin32
+$PYTHON -m pip install pypiwin32
+
+# Install PyQt
+$PYTHON -m pip install PyQt5
+
 # Install pyinstaller
-$PYTHON -m pip install pyinstaller==3.2.1
+$PYTHON -m pip install pyinstaller==3.3
 
 # Install ZBar
 #wget -q -O zbar.exe "http://sourceforge.net/projects/zbar/files/zbar/0.10/zbar-0.10-setup.exe/download"
@@ -86,9 +81,9 @@ wine nsis.exe
 #cp upx*/upx.exe .
 
 # add dlls needed for pyinstaller:
-cp $WINEPREFIX/drive_c/windows/system32/msvcp90.dll $WINEPREFIX/drive_c/Python34/
-cp $WINEPREFIX/drive_c/windows/system32/msvcm90.dll $WINEPREFIX/drive_c/Python34/
-
+cp $WINEPREFIX/drive_c/windows/system32/msvcp90.dll $WINEPREFIX/drive_c/python$PYTHON_VERSION/
+cp $WINEPREFIX/drive_c/windows/system32/msvcm90.dll $WINEPREFIX/drive_c/python$PYTHON_VERSION/
+cp $WINEPREFIX/drive_c/python$PYTHON_VERSION/Lib/site-packages/PyQt5/Qt/bin/* $WINEPREFIX/drive_c/python$PYTHON_VERSION/
 
 # Install MinGW
 wget http://downloads.sourceforge.net/project/mingw/Installer/mingw-get-setup.exe
@@ -102,6 +97,23 @@ wine mingw-get install gcc
 wine mingw-get install mingw-utils
 wine mingw-get install mingw32-libz
 
-printf "[build]\ncompiler=mingw32\n" > $WINEPREFIX/drive_c/Python34/Lib/distutils/distutils.cfg
+printf "[build]\ncompiler=mingw32\n" > $WINEPREFIX/drive_c/python$PYTHON_VERSION/Lib/distutils/distutils.cfg
 
-$PYTHON -m pip install $LYRA2RE_HASH_PYTHON_URL
+# Install VC++2015
+#wget -O vc_redist.x86.exe "$VC2015_URL"
+#wine vc_redist.x86.exe /quiet
+wget $WINETRICKS_MASTER_URL
+bash winetricks vcrun2015
+
+# build msvcr140.dll
+cp ../msvcr140.patch $WINEPREFIX/drive_c/python$PYTHON_VERSION/Lib/distutils
+pushd $WINEPREFIX/drive_c/python$PYTHON_VERSION/Lib/distutils
+patch < msvcr140.patch
+popd
+
+wine mingw-get install pexports
+wine pexports $WINEPREFIX/drive_c/python$PYTHON_VERSION/vcruntime140.dll >vcruntime140.def
+wine dlltool -dllname $WINEPREFIX/drive_c/python$PYTHON_VERSION/vcruntime140.dll --def vcruntime140.def --output-lib libvcruntime140.a
+cp libvcruntime140.a $WINEPREFIX/drive_c/MinGW/lib/
+
+$PYTHON -m pip install $ZNY_YESCRYPT_HASH_PYTHON_URL

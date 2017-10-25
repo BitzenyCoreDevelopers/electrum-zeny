@@ -353,6 +353,7 @@ class Blockchain(util.PrintError):
         else:
             return self.get_target_dgwv3(height, chain)
 
+
     def can_connect(self, header, check_height=True):
         height = header['block_height']
         if check_height and self.height() != height - 1:

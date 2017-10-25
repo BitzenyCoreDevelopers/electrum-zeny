@@ -35,17 +35,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.encoders import encode_base64
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-import PyQt4.QtCore as QtCore
-import PyQt4.QtGui as QtGui
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+import PyQt5.QtCore as QtCore
+import PyQt5.QtGui as QtGui
+from PyQt5.QtWidgets import (QVBoxLayout, QLabel, QGridLayout, QLineEdit)
 
 from electrum_zeny.plugins import BasePlugin, hook
 from electrum_zeny.paymentrequest import PaymentRequest
 from electrum_zeny.i18n import _
 from electrum_zeny_gui.qt.util import EnterButton, Buttons, CloseButton
 from electrum_zeny_gui.qt.util import OkButton, WindowModalDialog
-
 
 class Processor(threading.Thread):
     polling_interval = 5*60
@@ -102,6 +102,10 @@ class Processor(threading.Thread):
         s.quit()
 
 
+class QEmailSignalObject(QObject):
+    email_new_invoice_signal = pyqtSignal()
+
+
 class Plugin(BasePlugin):
 
     def fullname(self):
@@ -121,13 +125,13 @@ class Plugin(BasePlugin):
         if self.imap_server and self.username and self.password:
             self.processor = Processor(self.imap_server, self.username, self.password, self.on_receive)
             self.processor.start()
-        self.obj = QObject()
-        self.obj.connect(self.obj, SIGNAL('email:new_invoice'), self.new_invoice)
+        self.obj = QEmailSignalObject()
+        self.obj.email_new_invoice_signal.connect(self.new_invoice)
 
     def on_receive(self, pr_str):
         self.print_error('received payment request')
         self.pr = PaymentRequest(pr_str)
-        self.obj.emit(SIGNAL('email:new_invoice'))
+        self.obj.email_new_invoice_signal.emit()
 
     def new_invoice(self):
         self.parent.invoices.add(self.pr)

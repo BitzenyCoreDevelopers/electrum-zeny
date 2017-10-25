@@ -6,7 +6,7 @@ dist/
 *.egg/
 /electrum.py
 contrib/pyinstaller/
-Electrum.egg-info/
+Electrum_zeny.egg-info/
 gui/qt/icons_rc.py
 locale/
 .devlocaltmp/
@@ -16,6 +16,7 @@ env/
 .tox/
 .buildozer/
 bin/
+tmp/
 
 # tox files
 .cache/
