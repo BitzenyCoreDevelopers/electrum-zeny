@@ -1,10 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import base64
-import six
 import unittest
 import sys
 from ecdsa.util import number_to_string
@@ -113,10 +107,6 @@ class Test_bitcoin(unittest.TestCase):
         password = u"uber secret"
         wrong_password = u"not the password"
         enc = pw_encode(payload, password)
-        # FIXME: pyaes does not check that padding is consistent
-        # before removing it, wich causes this test to randomly fail.
-        # Wallets are unaffected by this, because check_password
-        # includes a test of the decoded public key.
         self.assertRaises(Exception, pw_decode, enc, wrong_password)
 
     def test_hash(self):

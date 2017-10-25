@@ -1,6 +1,7 @@
 #!/bin/bash
 rm -rf dist
+export PYTHONHASHSEED=22
 VERSION=`git describe --tags`
-python2 setup-release.py py2app
-hdiutil create -fs HFS+ -volname "Electrum-MONA" -srcfolder dist/Electrum-MONA.app dist/electrum-zeny-$VERSION.dmg
+pyinstaller --noconfirm --ascii contrib/osx.spec
+hdiutil create -fs HFS+ -volname "Electrum-zeny" -srcfolder dist/Electrum.app dist/electrum-$VERSION.dmg
 

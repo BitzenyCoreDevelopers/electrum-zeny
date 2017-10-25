@@ -93,7 +93,7 @@ class Plugins(DaemonThread):
 
     def load_plugin(self, name):
         if name in self.plugins:
-            return
+            return self.plugins[name]
         full_name = 'electrum_zeny_plugins.' + name + '.' + self.gui_name
         loader = pkgutil.find_loader(full_name)
         if not loader:
@@ -251,6 +251,9 @@ class BasePlugin(PrintError):
         return self.is_available() and self.config.get('use_'+self.name) is True
 
     def is_available(self):
+        return True
+
+    def can_user_disable(self):
         return True
 
     def settings_dialog(self):

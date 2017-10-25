@@ -4,9 +4,11 @@ PYTHON_VERSION=3.6.3
 # Please update these links carefully, some versions won't work under Wine
 PYTHON_URL=https://www.python.org/ftp/python/$PYTHON_VERSION/python-$PYTHON_VERSION.exe
 NSIS_URL=http://prdownloads.sourceforge.net/nsis/nsis-3.02.1-setup.exe?download
+NSIS_SHA256=736c9062a02e297e335f82252e648a883171c98e0d5120439f538c81d429552e
 VC2015_URL=https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
 WINETRICKS_MASTER_URL=https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
 ZNY_YESCRYPT_HASH_PYTHON_URL=https://github.com/wakiyamap/zny_yescrypt_python/archive/master.zip
+
 
 ## These settings probably don't need change
 export WINEPREFIX=/opt/wine64
@@ -14,6 +16,30 @@ export WINEPREFIX=/opt/wine64
 
 PYHOME=c:/python$PYTHON_VERSION
 PYTHON="wine $PYHOME/python.exe -OO -B"
+
+
+# based on https://superuser.com/questions/497940/script-to-verify-a-signature-with-gpg
+verify_signature() {
+    local file=$1 keyring=$2 out=
+    if out=$(gpg --no-default-keyring --keyring "$keyring" --status-fd 1 --verify "$file" 2>/dev/null) &&
+       echo "$out" | grep -qs "^\[GNUPG:\] VALIDSIG "; then
+        return 0
+    else
+        echo "$out" >&2
+        exit 0
+    fi
+}
+
+verify_hash() {
+    local file=$1 expected_hash=$2 out=
+    actual_hash=$(sha256sum $file | awk '{print $1}')
+    if [ "$actual_hash" == "$expected_hash" ]; then
+        return 0
+    else
+        echo "$file $actual_hash (unexpected hash)" >&2
+        exit 0
+    fi
+}
 
 # Let's begin!
 cd `dirname $0`
@@ -71,9 +97,9 @@ $PYTHON -m pip install websocket-client
 $PYTHON -m pip install setuptools --upgrade
 
 # Install NSIS installer
-echo "Make sure to untick 'Start NSIS' and 'Show release notes'" 
 wget -q -O nsis.exe "$NSIS_URL"
-wine nsis.exe
+verify_hash nsis.exe $NSIS_SHA256
+wine nsis.exe /S
 
 # Install UPX
 #wget -O upx.zip "http://upx.sourceforge.net/download/upx308w.zip"

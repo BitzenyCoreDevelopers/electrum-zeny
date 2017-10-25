@@ -1,9 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import six
 from electrum_zeny.i18n import _
 
 import PyQt5
@@ -28,7 +23,7 @@ class FeeSlider(QSlider):
 
     def moved(self, pos):
         with self.lock:
-            fee_rate = self.config.dynfee(pos) if self.dyn else pos * self.fee_step
+            fee_rate = self.config.dynfee(pos) if self.dyn else self.config.static_fee(pos)
             tooltip = self.get_tooltip(pos, fee_rate)
             QToolTip.showText(QCursor.pos(), tooltip, self)
             self.setToolTip(tooltip)
@@ -55,10 +50,9 @@ class FeeSlider(QSlider):
                 self.setRange(0, 4)
                 self.setValue(pos)
             else:
-                self.fee_step = self.config.max_fee_rate() / 10
                 fee_rate = self.config.fee_per_kb()
-                pos = min(fee_rate / self.fee_step, 10)
-                self.setRange(1, 10)
+                pos = self.config.static_fee_index(fee_rate)
+                self.setRange(0, 9)
                 self.setValue(pos)
             tooltip = self.get_tooltip(pos, fee_rate)
             self.setToolTip(tooltip)
