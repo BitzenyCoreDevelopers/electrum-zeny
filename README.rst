@@ -5,9 +5,9 @@ Electrum-zeny - Lightweight Bitzeny client
 
   Licence: MIT Licence
   Origin Author: Thomas Voegtlin
-  Port Maintainer: WakiyamaP (Electrum-zeny)
+  Port Maintainer: BitzenyCoreDevelopers (Electrum-zeny)
   Language: Python
-  Homepage: https://electrum-zeny.org/
+  Homepage: https://bitzeny.org/
 
 
 .. image:: https://travis-ci.org/spesmilo/electrum.svg?branch=master
