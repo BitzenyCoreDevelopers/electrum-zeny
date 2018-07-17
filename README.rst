@@ -52,7 +52,7 @@ Development version
 
 Check out the code from Github::
 
-    git clone https://github.com/wakiyamap/electrum-zeny.git
+    git clone https://github.com/BitzenyCoreDevelopers/electrum-zeny.git
     cd electrum-zeny
 
 Need yescrypt_hash::
